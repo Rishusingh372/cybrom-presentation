@@ -3,6 +3,9 @@ const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const userRoutes = require('./routes/user.route');
+const bcrypt = require('bcryptjs');
+
 
 // Middleware
 app.use(bodyParser.json());
@@ -16,6 +19,11 @@ app.use(cors({
 mongoose.connect('mongodb://localhost:27017/mydatabase')
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err));
+
+// Routes
+
+app.use('/api/users', userRoutes);
+
 
 
 // server setup

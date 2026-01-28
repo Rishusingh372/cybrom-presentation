@@ -9,14 +9,14 @@ const Register = () => {
     e.preventDefault();
 
     const formData = {
-      name: e.target.name.value,
+      username: e.target.name.value,
       email: e.target.email.value,
       password: e.target.password.value,
     };
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "http://localhost:5000/api/users/register",
         formData
       );
       setData(response.data);

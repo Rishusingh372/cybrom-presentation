@@ -1,0 +1,2 @@
+cd Backend
+pnpm install
