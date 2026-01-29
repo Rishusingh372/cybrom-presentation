@@ -1,33 +1,47 @@
-const express = require ('express');
-const app = express();
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const userRoutes = require('./routes/user.route');
-const bcrypt = require('bcryptjs');
+const express = require("express");
+const app=express();
+const EmpRoute = require("./routes/user.route.js");
+const cors= require("cors");
+const bodyparser = require('body-parser')
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 
-// Middleware
-app.use(bodyParser.json());
-app.use(cors({
-    origin: "http://localhost:5173", // your frontend
-    credentials: true,
-}));
-
-// connect to mongoDb
-
-mongoose.connect('mongodb://localhost:27017/mydatabase')
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log(err));
-
-// Routes
-
-app.use('/api/users', userRoutes);
+// Body-parser middleware
+app.use(bodyparser.urlencoded({ extended: true }))
+app.use(bodyparser.json())
+mongoose.connect(process.env.DBCONN).then(()=>{
+    console.log("DB Succesfully Connected!");
+})
+app.use(cors());
+app.use("/employees", EmpRoute);
 
 
 
-// server setup
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.get("/home", (req, res)=>{
+     console.log("Home Page!");
+     res.status(200).send("Home page Response!");
+})
+app.get("/about", (req, res, next)=>{
+       throw new Error('Example About  error');
+})
+
+app.get("/service", (req, res)=>{
+      let name=false;
+      if (name){
+         res.status(200).send("Welcome To Service Page!");
+      }
+      else
+      {
+        res.status(200).send("Error in Service Page!");
+      }
 });
+app.use((err, req, res, next)=>{
+     console.log(err.stack);
+     res.status(500).send(err.message);
+})
+
+const Port = process.env.PORT ;
+app.listen(Port, ()=>{
+    console.log(`Server run on Port ${Port}`);
+})

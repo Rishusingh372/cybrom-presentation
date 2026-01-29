@@ -1,2 +1,0 @@
-cd Backend
-nodemon index

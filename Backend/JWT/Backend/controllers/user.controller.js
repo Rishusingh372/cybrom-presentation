@@ -1,46 +1,62 @@
-const User = require('../models/user.model');
-const jwt = require('jsonwebtoken');
+const EmpModel = require("../models/user.model.js");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// REGISTER
-const createUser = async (req, res) => {
-  try {
-    const { username, email, password } = req.body; // use username (not name)
-    const newUser = new User({ username, email, password });
-    await newUser.save();
-    res.status(201).json({ message: 'User created successfully', userId: newUser._id });
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error: error.message });
-  }
-};
+const empSave = async (req, res) => {
+    const { username, email, password } = req.body
+    const passwordHash = await bcrypt.hash(password, 10);
 
-// LOGIN (JWT)
-const loginUser = async (req, res) => {
-  try {
+    const user = await EmpModel.create({
+        username: username,
+        email: email,
+        password: passwordHash
+    })
+
+    res.send("You are Succesfully Registered!!")
+
+}
+
+const empLogin = async (req, res) => {
     const { email, password } = req.body;
+    try {
+        const user = await EmpModel.findOne({ email: email });
+        if (!user) {
+            res.status(401).send({ msg: "Invalid Email" });
+        }
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        console.log(passwordMatch);
+        if (!passwordMatch) {
+            res.status(401).send({ msg: "Invalid Password" });
+        }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+        const token = jwt.sign({ id: user._id }, "adarsh111", {
+            expiresIn: 3 * 24 * 60 * 60,
+        });
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET || "dev_secret_change_this",
-      { expiresIn: "7d" }
-    );
+        console.log(token);
+        res.send({ token: token, msg: "You are succesfully Login" });
+    } catch (error) {
+        console.log("error in emplogin", error)
+    }
 
-    res.json({
-      message: "Login success ✅",
-      token,
-      user: { id: user._id, username: user.username, email: user.email }
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Login error", error: error.message });
-  }
-};
+}
 
-module.exports = { 
-    createUser,
-     loginUser
-};
+const empAuth = async (req, res) => {
+    try {
+        const token = req.header("auth_token")
+        const decode = jwt.verify(token, "adarsh111");
+        const user = await EmpModel.findById(decode.id);
+        console.log(user);
+        res.status(200).send(user)
+    } catch (error) {
+        res.status(401).send("error in empAuth")
+    }
+}
+
+
+module.exports = {
+    empSave,
+    empLogin,
+    empAuth
+}
