@@ -1,40 +1,32 @@
-import { useState, useEffect } from "react";
-import axios from "axios"
-import {useNavigate} from "react-router-dom";
+import { useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const Home=()=>{
+const Home = () => {
   const navigate = useNavigate();
 
-   const validateAuth=async()=>{
-       const token = localStorage.getItem("token");
-       try {
-        const api = "http://localhost:8000/employees/userauth";
-        const response = await axios.post(api , null ,{headers:{"auth_token":token}});
-         console.log(response.data)
-         localStorage.setItem("username", response.data.username);
-        localStorage.setItem("email", response.data.email);
-        navigate("/dashboard");
-       } catch (error) {
-         console.log(error)
-       }
-   }
+  const validateAuth = async () => {
+    try {
+      const api = "http://localhost:8000/employees/userauth";
+      // Check if user is already logged in via cookie
+      const response = await axios.post(api, {}, { withCredentials: true });
+      
+      localStorage.setItem("username", response.data.username);
+      localStorage.setItem("email", response.data.email);
+      navigate("/dashboard");
+    } catch (error) {
+      // If 401, user is just not logged in. Do nothing, let them stay on Home.
+      console.log("Session not found. Please login.");
+    }
+  };
 
-   useEffect(()=>{
+  useEffect(() => {
     validateAuth();
-   }, [])
- 
-    return(
-        <>
-          <h1 style={{
-            textAlign: "center",
-            fontWeight: "600",
-            fontSize: "2.2rem",
-            letterSpacing: "0.5px",
+  }, []);
 
-            }}> Welcome To  JWT Login</h1>
-
-        </>
-    )
-}
+  return (
+    <h1 style={{ textAlign: "center" }}>Welcome To JWT Login (Cookie Based)</h1>
+  );
+};
 
 export default Home;
