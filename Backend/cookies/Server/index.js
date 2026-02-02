@@ -41,19 +41,19 @@ app.use("/employees", EmpRoute);
 //   throw new Error("Example About error");
 // });
 
-app.get("/service", (req, res) => {
-  let name = false;
-  if (name) {
-    res.status(200).send("Welcome To Service Page!");
-  } else {
-    res.status(200).send("Error in Service Page!");
-  }
-});
+// app.get("/service", (req, res) => {
+//   let name = false;
+//   if (name) {
+//     res.status(200).send("Welcome To Service Page!");
+//   } else {
+//     res.status(200).send("Error in Service Page!");
+//   }
+// });
 
-app.use((err, req, res, next) => {
-  console.log(err.stack);
-  res.status(500).send(err.message);
-});
+// app.use((err, req, res, next) => {
+//   console.log(err.stack);
+//   res.status(500).send(err.message);
+// });
 
 const PORT =  8000;
 app.listen(PORT, () => {
